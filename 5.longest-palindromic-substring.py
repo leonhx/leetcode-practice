@@ -36,10 +36,13 @@ class Solution:
             return s
         matrix = [[(True if i == j else None) for j in range(len(s))]
                   for i in range(len(s))]
+        has_pld: List[bool] = [i <= 1 for i in range(len(s) + 1)]
         max_sz: int = 1
         s_i: int = 0
         s_j: int = 1
         for sz in range(2, len(s) + 1):
+            if not has_pld[sz - 2]:
+                continue
             for i in range(0, len(s) - sz + 1):
                 is_pld = (s[i] == s[i + sz - 1]) and \
                     ((i + 1 >= i + sz - 2) or matrix[i + 1][i + sz - 2])
@@ -48,5 +51,6 @@ class Solution:
                     s_i = i
                     s_j = i + sz
                     max_sz = sz
+                    has_pld[sz] = is_pld
         return s[s_i:s_j]
 
