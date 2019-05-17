@@ -1,58 +1,51 @@
-from typing import *  # noqa:F403
+import queue
 from dataclasses import dataclass
+from typing import List, Any  # noqa:F403
 
 
 @dataclass
 class TreeNode:
+    val: Any
+    left: Any = None
+    right: Any = None
+
     def __init__(self, x):
         self.val = x
-        self.left = None
-        self.right = None
 
 
-def show_treenode(x: TreeNode) -> List[Any]:
-    cur_layer = [x]
-    has_next = True
-    result = []
-    while has_next:
-        has_next = False
-        next_layer = []
-        for n in cur_layer:
-            if n is None:
-                result.append(None)
-                next_layer += [None, None]
-            else:
-                result.append(n.val)
-                next_layer += [n.left, n.right]
-                if n.left is not None or n.right is not None:
-                    has_next = True
-        cur_layer = next_layer
-    return result
+def ensure_capacity(xs: List[Any], cap: int) -> None:
+    while len(xs) < cap:
+        xs.append(None)
+
+
+def show_treenode(x: TreeNode, debug=False) -> List[Any]:
+    result = [x] if x else []
+    i = 0
+    def _set(idx, nn):  # noqa:E306
+        if nn:
+            ensure_capacity(result, idx + 1)
+            result[idx] = nn
+    while i < len(result):
+        n = result[i]
+        left_i = 2 * i + 1
+        right_i = left_i + 1
+        i += 1
+        if n:
+            _set(right_i, n.right)
+            _set(left_i, n.left)
+    return [(n.val if n else None) for n in result]
 
 
 def to_treenode(xs: List[Any]) -> TreeNode:
-    if not xs:
-        return None
-    root: TreeNode = TreeNode(xs[0])
-    xs = xs[1:]
-    cur_layer = [root]
-    i, layer_no = 0, 1
-    while i < len(xs):
-        layer_node_num = 2 ** layer_no
-        next_layer = [(TreeNode(x) if x is not None else None)
-                      for x in xs[i:(i + layer_node_num)]]
-        if len(next_layer) != 2 * len(cur_layer):
-            raise RuntimeError('size not match')
-        for j in range(len(cur_layer)):
-            if cur_layer[j] is None:
-                continue
-            else:
-                cur_layer[j].left = next_layer[2 * j]
-                cur_layer[j].right = next_layer[2 * j + 1]
-        cur_layer = next_layer
-        layer_no += 1
-        i += layer_node_num
-    return root
+    ns = [(TreeNode(x) if x is not None else None) for x in xs]
+    for i in range(len(ns) // 2):
+        n = ns[i]
+        if n:
+            left_i = 2 * i + 1
+            right_i = left_i + 1
+            n.left = ns[left_i] if left_i < len(ns) else None
+            n.right = ns[right_i] if right_i < len(ns) else None
+    return ns[0] if ns else None
 
 
 class ListNode:
