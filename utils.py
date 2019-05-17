@@ -4,10 +4,6 @@ from dataclasses import dataclass
 
 @dataclass
 class TreeNode:
-    val: Any
-    left: TreeNode
-    right: TreeNode
-
     def __init__(self, x):
         self.val = x
         self.left = None
