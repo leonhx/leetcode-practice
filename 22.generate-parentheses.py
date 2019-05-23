@@ -4,15 +4,27 @@
 # [22] Generate Parentheses
 #
 class Solution:
+    def parse(self, acc: str):
+        nl, nr = 0, 0
+        for c in acc:
+            if c == '(':
+                nl += 1
+            else:
+                nr += 1
+        return nl, nr
+
+    def gen(self, n: int, acc: str) -> List[str]:
+        nl, nr = self.parse(acc)
+        if nr > nl:
+            raise RuntimeError('should not reach here')
+        if nl == n:
+            acc += ')' * (n - nr)
+            return [acc]
+        if nl == nr:
+            return self.gen(n, acc + '(')
+        return self.gen(n, acc + '(') + self.gen(n, acc + ')')
+
     def generateParenthesis(self, n: int) -> List[str]:
         if n == 0:
             return []
-        result = {'()'}
-        for i in range(1, n):
-            new_result = set()
-            for x in result:
-                new_result.add(x + '()')
-                new_result.add('()' + x)
-                new_result.add('(' + x + ')')
-            result = new_result
-        return list(result)
+        return self.gen(n, '')
