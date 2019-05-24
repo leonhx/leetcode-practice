@@ -1,16 +1,29 @@
-import queue
-from dataclasses import dataclass
 from typing import List, Any  # noqa:F403
 
 
-@dataclass
 class TreeNode:
-    val: Any
-    left: Any = None
-    right: Any = None
-
     def __init__(self, x):
         self.val = x
+        self.left = None
+        self.right = None
+
+    def _parse_child_repr(self, child_node, prefix):
+        lines = repr(child_node).split('\n')
+        if lines and prefix:
+            lines[0] = prefix + lines[0]
+        return lines
+
+    def __repr__(self):
+        lines = []
+        if self.left:
+            lines += self._parse_child_repr(self.left, 'L: ')
+        if self.right:
+            lines += self._parse_child_repr(self.right, 'R: ')
+        indent = ' ' * 2
+        result = repr(self.val)
+        for l in lines:
+            result += '\n' + indent + l
+        return result
 
 
 def ensure_capacity(xs: List[Any], cap: int) -> None:
@@ -52,6 +65,9 @@ class ListNode:
     def __init__(self, x):
         self.val = x
         self.next = None
+
+    def __repr__(self):
+        return f'ListNode({show_listnode(self)})'
 
 
 def show_listnode(x: ListNode) -> List[Any]:
