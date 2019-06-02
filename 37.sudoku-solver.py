@@ -34,12 +34,10 @@ class Solution:
                     missing.append((i, j))
         return missing
 
-    def propose(self, indices, blacklist={}):
+    def propose(self, indices):
         candidates = {}
         for i, j in indices:
-            blackset = blacklist.get((i, j), set())
-            ns = [n for n in range(1, 10)
-                  if self.isValid(i, j, n) and n not in blackset]
+            ns = [n for n in range(1, 10) if self.isValid(i, j, n)]
             if ns:
                 candidates[(i, j)] = ns
         return candidates
@@ -51,23 +49,15 @@ class Solution:
         candidates = self.propose(missing_indices)
         if not candidates:
             return False
-        updated = False
-        for (i, j), ns in candidates.items():
-            if len(ns) == 1:
-                self.update(i, j, ns[0])
-                updated = True
-        if updated:
-            return self.solve()
-        else:
-            (i, j), ns = sorted(list(candidates.items()),
-                                key=lambda x: len(x[1]))[0]
-            for n in ns:
-                self.update(i, j, n)
-                solved = self.solve()
-                if solved:
-                    return True
-                self.reset(i, j)
-            return False
+        (i, j), ns = sorted(list(candidates.items()),
+                            key=lambda x: len(x[1]))[0]
+        for n in ns:
+            self.update(i, j, n)
+            solved = self.solve()
+            if solved:
+                return True
+            self.reset(i, j)
+        return False
 
     def solveSudoku(self, board: List[List[str]]) -> None:
         """
@@ -82,4 +72,5 @@ class Solution:
                 xij = self.board[i][j]
                 if xij != '.':
                     self._mark(i, j, int(xij), True)
-        self.solve()
+        if not self.solve():
+            raise RuntimeError('it is not solveable')
