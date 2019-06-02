@@ -15,14 +15,11 @@ from typing import List, Tuple
 
 
 def maxNumConcert(time_ranges: List[Tuple[int, int]]) -> int:
-    if not time_ranges:
-        return 0
     time_ranges.sort(key=lambda x: x[1])
-    result = [time_ranges[0]]
-    i = 1
-    while i < len(time_ranges):
-        last_st, last_et = result[-1]
-        if time_ranges[i][0] >= last_et:
-            result.append(time_ranges[i])
-        i += 1
-    return len(result)
+    result = 0
+    last_et = 0
+    for st, et in time_ranges:
+        if st >= last_et:
+            last_et = et
+            result += 1
+    return result
