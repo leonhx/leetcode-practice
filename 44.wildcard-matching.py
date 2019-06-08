@@ -25,99 +25,76 @@ class Solution:
                 i = j
         return ps
 
-    def _findAll(self, s: str, w: str, start: int) -> List[int]:
-        i, res = start, []
-        while i < len(s):
-            i = s.find(w, i)
-            if i == -1:
-                break
-            res.append(i)
-            i += 1
-        return res
-
-    def _try(self, s: str, p_with_index, i_range) -> bool:
-        start_i, end_i = i_range
-        if not p_with_index:
-            return start_i <= len(s) < end_i
-        w, p_index = p_with_index[0]
-        if w[0] == '*':
-            return self._try(s, p_with_index[1:], (start_i, len(s) + 1))
-        elif w[0] == '?':
-            i_range = (start_i + len(w), end_i + len(w))
-            return self._try(s, p_with_index[1:], i_range)
+    def _to_groups(self, p: List[str]):
+        if not p:
+            return []
+        groups = []
+        if p[0][0] != '*':
+            groups.append([None, p[0]])
         else:
-            for i in p_index:
-                if start_i <= i < end_i:
-                    nxt_i = i + len(w)
-                    nxt_range = nxt_i, nxt_i + 1
-                    if self._try(s, p_with_index[1:], nxt_range):
-                        return True
-            return False
+            groups.append([])
+        for w in p[1:]:
+            if w[0] == '*' and groups[-1]:
+                groups.append([])
+            else:
+                groups[-1].append(w)
+        if groups[-1]:
+            groups[-1].append(None)
+        else:
+            groups.pop()
+        return groups
 
-    def _buildIndex(self, s: str, p: List[str]):
-        p_index, i = [], 0
-        for w in p:
-            if w[0] == '*':
-                p_index.append(None)
+    def _len(self, group: List[str]):
+        return sum(len(w) for w in group if w)
+
+    def _check(self, s: str, group: List[str], start: int) -> int:
+        is_valid = True
+        for w in group:
+            if w is None:
+                return start == len(s)
             elif w[0] == '?':
-                i += len(w)
-                p_index.append(None)
+                is_valid = start + len(w) <= len(s)
             else:
-                indices = self._findAll(s, w, i)
-                if not indices:
-                    return None
-                p_index.append(indices)
-                i = indices[0] + len(w)
-        i = len(s)
-        for w, indices in reversed(list(zip(p, p_index))):
-            if w[0] == '*':
-                continue  # do nothing
-            elif w[0] == '?':
-                i -= len(w)
+                is_valid = s[start:].startswith(w)
+            if not is_valid:
+                break
+            start += len(w)
+        return is_valid
+
+    def _find(self, s: str, group: List[str], start: int) -> int:
+        if group[0] is None:
+            if start != 0:
+                return False
+            return 0 if self._check(s, group[1:], 0) else -1
+        bias = 0
+        if group[0][0] == '?':
+            bias += len(group[0])
+            group = group[1:]
+        start += bias
+        while start <= len(s) - self._len(group):
+            if group and group[0]:
+                i = s.find(group[0], start)
+                if i == -1:
+                    return -1
+                j = i + len(group[0])
             else:
-                while indices and indices[-1] >= i:
-                    indices.pop()
-                if not indices:
-                    return None
-                else:
-                    i = indices[-1]
-        return p_index
+                j = i = start
+            if self._check(s, group[1:], j):
+                return i - bias
+            start = i + 1
+        return -1
 
     def isMatch(self, s: str, p: str) -> bool:
-        p = self._parse(p)
-        p_index = self._buildIndex(s, p)
-        if p_index is None:
-            return False
-        p_with_index = list(zip(p, p_index))
-        return self._try(s, p_with_index, (0, 1))
-
-    def _isMatch(self, s: str, p: str) -> bool:
         if not p:
             return not s
-        if not s:
-            return not p or all(c == '*' for c in p)
-        if p[0] == '?':
-            return self.isMatch(s[1:], p[1:])
-        elif p[0] == '*':
-            i, qmark_cnt = 0, 0
-            while i < len(p) and (p[i] == '*' or p[i] == '?'):
-                if p[i] == '?':
-                    qmark_cnt += 1
-                i += 1
-            if i == len(p):
-                return len(s) >= qmark_cnt
-            j = i + 1
-            while j < len(p) and p[j] != '*' and p[j] != '?':
-                j += 1
-            nxt_seq = p[i:j]
-            k = 0
-            while k < len(s):
-                s_i = s.find(nxt_seq, k)
-                if s_i == -1:
-                    break
-                if s_i >= qmark_cnt and self.isMatch(s[s_i + j - i:], p[j:]):
-                    return True
-                k = s_i + 1
-            return False
-        else:
-            return s[0] == p[0] and self.isMatch(s[1:], p[1:])
+        p_index = self._parse(p)
+        groups = self._to_groups(p_index)
+        i = 0
+        for group in groups:
+            i = self._find(s, group, i)
+            if i == -1:
+                return False
+            i += self._len(group)
+            if i > len(s):
+                return False
+        return True
