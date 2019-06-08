@@ -5,14 +5,11 @@
 #
 class Solution:
     def jump(self, nums: List[int]) -> int:
-        min_steps = list(reversed(range(len(nums))))
-        for i in reversed(range(len(nums))):
-            n = nums[i]
-            if i + n >= len(nums) - 1:
-                min_steps[i] = min([min_steps[i], 1])
-            else:
-                for j in range(i + n, i, -1):
-                    min_steps[i] = min([min_steps[i], min_steps[j] + 1])
-                    if min_steps[i] <= 2:
-                        break
-        return min_steps[0]
+        farthest_i, start, steps = 0, 0, 0
+        while farthest_i < len(nums) - 1:
+            steps += 1
+            j = farthest_i + 1
+            for i in range(start, farthest_i + 1):
+                j = max([i + nums[i], j])
+            start, farthest_i = farthest_i + 1, j
+        return steps
