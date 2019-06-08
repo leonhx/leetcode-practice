@@ -1,7 +1,7 @@
 {
     "python.pythonPath": "/usr/local/anaconda3/envs/kaggle/bin/python",
     "python.linting.flake8Args": [
-        "--ignore=E302,F821"
+        "--ignore=E302,E701,F821"
     ],
     "python.linting.pylintEnabled": false
 }
