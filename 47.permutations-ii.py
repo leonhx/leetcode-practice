@@ -8,15 +8,15 @@ class Solution:
         if not nums:
             return []
         nums.sort()
-        combs = [[nums[0]]]
+        combs = {(nums[0],)}
         for n in nums[1:]:
-            new_combs = []
+            new_combs = set()
             for comb in combs:
                 for i in range(len(comb) + 1):
                     if i < len(comb) and comb[i] == n:
                         continue
                     new_comb = list(comb)
                     new_comb.insert(i, n)
-                    new_combs.append(new_comb)
+                    new_combs.add(tuple(new_comb))
             combs = new_combs
-        return combs
+        return [list(comb) for comb in combs]
