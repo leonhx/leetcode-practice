@@ -19,7 +19,7 @@ class Solution:
         else:
             raise ValueError('impossible')
 
-    def rotate(self, matrix: List[List[int]]) -> None:
+    def plain_rotate(self, matrix: List[List[int]]) -> None:
         """
         Do not return anything, modify matrix in-place instead.
         """
@@ -36,3 +36,22 @@ class Solution:
                     matrix[i][j] = prev_x
                     prev_x = tmp
                 matrix[org_i][org_j] = prev_x
+
+    def rotate(self, matrix: List[List[int]]) -> None:
+        """
+        Do not return anything, modify matrix in-place instead.
+        """
+        n = len(matrix)
+        for i in range(n // 2):
+            for j in range(n - n // 2):
+                (
+                    matrix[i][j],
+                    matrix[n - 1 - j][i],
+                    matrix[n - 1 - i][n - 1 - j],
+                    matrix[j][n - 1 - i]
+                ) = (
+                    matrix[n - 1 - j][i],
+                    matrix[n - 1 - i][n - 1 - j],
+                    matrix[j][n - 1 - i],
+                    matrix[i][j]
+                )
