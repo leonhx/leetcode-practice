@@ -4,7 +4,7 @@
 # [59] Spiral Matrix II
 #
 class Solution:
-    def fillMatrix(self, matrix: List[List[int]], n: int, i: int, x: int):
+    def fillMatrix(self, matrix: List[List[int]], n: int, i: int, x: int) -> int:
         w = n - i * 2
         if w < 1:
             return
@@ -20,9 +20,11 @@ class Solution:
         for j in reversed(range(i + 1, i + w - 1)):
             matrix[j][i] = x
             x += 1
-        self.fillMatrix(matrix, n, i + 1, x)
+        return x
 
     def generateMatrix(self, n: int) -> List[List[int]]:
         matrix = [[0 for _ in range(n)] for _ in range(n)]
-        self.fillMatrix(matrix, n, 0, 1)
+        x = 1
+        for i in range((n + 1) // 2):
+            x = self.fillMatrix(matrix, n, i, x)
         return matrix
