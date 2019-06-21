@@ -21,7 +21,7 @@ class Solution:
         return n
 
     def rotateRight(self, head: ListNode, k: int) -> ListNode:
-        n = self.length(head)
+        n = self.length2(head)
         if n == 0:
             return head
         k %= n
