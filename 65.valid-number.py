@@ -57,10 +57,8 @@ class Solution:
     def unsigned_integer(self, s: str) -> str:
         if not s:
             return None
-        if '1' <= s[0] <= '9':
+        if '0' <= s[0] <= '9':
             return self.optional(self.digits)(s[1:])[0]
-        elif s[0] == '0':
-            return s[1:]
         else:
             return None
 
