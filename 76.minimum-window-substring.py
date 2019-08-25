@@ -12,15 +12,21 @@ class Solution:
         for c in t:
             counter.setdefault(c, 0)
             counter[c] += 1
+        if self.d:
+            print(f'counter: {counter}')
         while j < len(s):
+            match = False
             while j < len(s):
                 c = s[j]
                 j += 1
                 if c in counter:
                     counter[c] -= 1
-                    if counter[c] <= 0 and all([
-                            v <= 0 for v in counter.values()]):
-                        break
+                    match = counter[c] <= 0 and all([
+                        v <= 0 for v in counter.values()])
+                    if match: break
+            if not match: break
+            if self.d:
+                print(f'j={j}: {s[i:j]}, {counter}')
             while i < j:
                 c = s[i]
                 if c in counter:
