@@ -21,7 +21,7 @@ class Solution:
         right_max = self.largestRectangleArea_1(heights[min_i + 1:])
         return max([area, left_max, right_max])
 
-    def largestRectangleArea(self, heights: List[int]) -> int:
+    def largestRectangleArea_2(self, heights: List[int]) -> int:
         if not heights:
             return 0
         total_num = len(heights)
@@ -42,5 +42,34 @@ class Solution:
                     area = (j - i + 1) * min_h
                     if area > max_area:
                         max_area = area
+        return max_area
+
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        if not heights:
+            return 0
+        total_num = len(heights)
+        if total_num == 1:
+            return heights[0]
+
+        less_from_left = [None] * total_num
+        less_from_left[0] = -1
+        for i in range(total_num):
+            p = i - 1
+            while p >= 0 and heights[p] >= heights[i]:
+                p = less_from_left[p]  # magic!
+            less_from_left[i] = p
+
+        less_from_right = [None] * total_num
+        less_from_right[total_num - 1] = total_num
+        for i in range(total_num - 2, -1, -1):
+            p = i + 1
+            while p < total_num and heights[p] >= heights[i]:
+                p = less_from_right[p]
+            less_from_right[i] = p
+
+        max_area = 0
+        for i in range(total_num):
+            max_area = max(max_area, heights[i] * (
+                less_from_right[i] - less_from_left[i] - 1))
         return max_area
 # @lc code=end
