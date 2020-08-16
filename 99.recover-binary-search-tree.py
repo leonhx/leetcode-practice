@@ -19,11 +19,6 @@ class Solution:
         root.size = len(xs)
         return xs
 
-    def size(self, root: TreeNode) -> int:
-        if root is None:
-            return 0
-        return self.size(root.left) + 1 + self.size(root.right)
-
     def set_values(self, root: TreeNode, xs: List[int]) -> None:
         if root is None:
             return
@@ -33,13 +28,58 @@ class Solution:
         self.set_values(root.right, xs[left_size + 1:])
 
     def reset(self, root: TreeNode) -> None:
+        """It is a solution using extra O(n) space"""
         xs = self.to_list(root)
         xs.sort()
         self.set_values(root, xs)
+
+    def set_maxmin(self, root: TreeNode) -> None:
+        if root is None:
+            return
+        self.set_maxmin(root.left)
+        self.set_maxmin(root.right)
+        max_node, min_node = root, root
+        if root.left is not None:
+            if root.left.max_node.val > max_node.val:
+                max_node = root.left.max_node
+            if root.left.min_node.val < min_node.val:
+                min_node = root.left.min_node
+        if root.right is not None:
+            if root.right.max_node.val > max_node.val:
+                max_node = root.right.max_node
+            if root.right.min_node.val < min_node.val:
+                min_node = root.right.min_node
+        root.max_node = max_node
+        root.min_node = min_node
+
+    def swap(self, root: TreeNode) -> True:
+        if root is None:
+            return False
+        queue = []
+        if root.left is not None:
+            queue.append(root.left.max_node)
+        queue.append(root)
+        if root.right is not None:
+            queue.append(root.right.min_node)
+        if len(queue) < 2:
+            return False
+        if queue[0].val > queue[-1].val:
+            queue[0].val, queue[-1].val = queue[-1].val, queue[0].val
+            return True
+        for i in range(1, len(queue)):
+            if queue[i - 1].val > queue[i].val:
+                queue[i - 1].val, queue[i].val = queue[i].val, queue[i - 1].val
+                return True
+        if self.swap(root.left):
+            return True
+        if self.swap(root.right):
+            return True
+        return False
 
     def recoverTree(self, root: TreeNode) -> None:
         """
         Do not return anything, modify root in-place instead.
         """
-        self.reset(root)
+        self.set_maxmin(root)
+        self.swap(root)
 # @lc code=end
